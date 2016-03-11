@@ -4,6 +4,8 @@ import java.util.Arrays;
  * Created by linux on 10/03/16.
  */
 class Bender {
+    private final String mapa;
+
     public static void main(String[] args) {
         String mapa = "" +
                 "#######\n" +
@@ -17,13 +19,14 @@ class Bender {
         Bender c = new Bender(mapa);
         c.Mapa(mapa);
         char[][] Mapa = c.Mapa(mapa);
-        int[][] Inicio = c.Inicio(Mapa);
+        int[] posicion = c.Inicio(Mapa);
         System.out.println(Arrays.deepToString(Mapa));
-        System.out.println(Arrays.deepToString(Inicio));
+        System.out.println(Arrays.toString(posicion));
     }
 
     // Constructor: ens passen el mapa en forma d'String
     public Bender(String mapa) {
+        this.mapa = mapa;
     }
 
 
@@ -75,8 +78,29 @@ class Bender {
         return res;
     }
 
-    int[][] Inicio(char[][] array) {
-        return null;
+    int[] Inicio(char[][] array) {
+        int[] posicion = new int[2];
+        for (int h = 0; h < array.length; h++) {
+            for (int i = 0; i < array[h].length; i++) {
+                if (array[h][i] == 'X') {
+                    posicion[0] = h;
+                    posicion[1] = i;
+                    break;
+                }
+            }
+        }
+        return posicion;
+    }
+
+    String Recorrer(char[][] array) {
+        String Resultado = "";
+        array = Mapa(mapa);
+        for (int h = 0; h < array.length; h++) {
+            for (int i = 0; i < array[h].length; i++) {
+                if (array[h][i] == ' ') {
+                }
+            }
+        }
+        return Resultado;
     }
 }
-
