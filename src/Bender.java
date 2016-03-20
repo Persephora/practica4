@@ -2,6 +2,7 @@
  * Created by linux on 18/03/16.
  */
 class Bender {
+    //VARIABLES
     private final char[][] terreno;
     private int posX;
     private int posY;
@@ -13,16 +14,48 @@ class Bender {
     private int contador;
     private int movimientos;
 
+    //CONSTRUCTOR BENDER
     public Bender(String mapa) {
         ancho = ancho(mapa);
         terreno = construirMapa(mapa);
         String r = QuitarSalto(mapa);
-        largo = r.length() / ancho;
-    }
-    public String run() {
-        return (recorrer(terreno));
     }
 
+    //RECORRIDO DE BENDER
+    public String run() {
+        boolean teletransportado = false;
+        String resultado = "";
+        EncontrarBender(terreno);
+        int priotele = 0;
+        while (terreno[posY][posX] != '$') {
+            if (terreno[posY][posX] == '$') {
+                break;
+            } else if (terreno[posY][posX] == 'I') {
+                prioridad = iPrioridad(prioridad);
+                contador = contador(prioridad);
+                resultado += prioridad.charAt(contador);
+                desplazamiento(prioridad.charAt(contador));
+            } else if (terreno[posY][posX] == 'T') {
+                priotele = contador;
+                teletransportado = true;
+                EncontrarTransporter(terreno);
+            }
+            contador = contador(prioridad);
+            if (teletransportado) {
+                contador = priotele;
+            }
+            while (!pared(prioridad.charAt(contador))) {
+                if (terreno[posY][posX] == '$') {
+                    break;
+                }
+                resultado += prioridad.charAt(contador);
+                desplazamiento(prioridad.charAt(contador));
+            }
+        }
+        return resultado;
+    }
+
+    //METODO PARA SABER EL ANCHO DE NUESTRO MAPA
     private int ancho(String r) {
         for (int i = 0; i < r.length(); i++) {
             if (r.charAt(i) == '\n') {
@@ -33,6 +66,7 @@ class Bender {
         return ancho;
     }
 
+    //CONSTRUIR MAPA EN UN ARRAY MULTIDIMENSIONAL
     private char[][] construirMapa(String r) {
         int Largo = r.length() / ancho;
         r = QuitarSalto(r);
@@ -54,6 +88,7 @@ class Bender {
         return terreno;
     }
 
+    //METODO QUE CAMBIA LA PRIORIDAD EN CASO DE UN INVERTIR
     private String iPrioridad(String prioridad) {
         String parte;
         parte = prioridad.substring(0, 2);
@@ -62,6 +97,7 @@ class Bender {
         return prioridad;
     }
 
+    //QUITAR SALTOS DEL STRING PARA UNA MEJOR MANIPULACION
     private String QuitarSalto(String r) {
         String res = "";
         for (int i = 0; i < r.length(); i++) {
@@ -73,6 +109,7 @@ class Bender {
         return res;
     }
 
+    //ENCONTRAR INICIO DE DESPLAZAMIENTO
     private void EncontrarBender(char[][] array) {
         for (int y = 0; y < array.length; y++) {
             for (int x = 0; x < array[y].length; x++) {
@@ -84,6 +121,7 @@ class Bender {
         }
     }
 
+    //ENCONTRAR POSICION TELETRANSPORTER
     private void EncontrarTransporter(char[][] array) {
         for (int y = 0; y < array.length; y++) {
             for (int x = 0; x < array[y].length; x++) {
@@ -100,6 +138,7 @@ class Bender {
         }
     }
 
+    //COMPROBAR SI HAY PARED
     private boolean pared(char prioridad) {
         switch (prioridad) {
             case 'S':
@@ -126,6 +165,7 @@ class Bender {
         return false;
     }
 
+    //DESPLAZAR EL ROBOT
     private void desplazamiento(char prioridad) {
         switch (prioridad) {
             case 'S':
@@ -147,6 +187,7 @@ class Bender {
         }
     }
 
+    //CONTADOR PARA SABER DIRECCION
     private int contador(String prioridad) {
         for (int i = 0; i < prioridad.length(); i++) {
             boolean pared = pared(prioridad.charAt(i));
@@ -156,38 +197,5 @@ class Bender {
             }
         }
         return contador;
-    }
-
-    private String recorrer(char[][] terreno) {
-        boolean teletransportado = false;
-        String resultado = "";
-        EncontrarBender(terreno);
-        int priotele = 0;
-        while (terreno[posY][posX] != '$') {
-            if (terreno[posY][posX] == '$') {
-                break;
-            } else if (terreno[posY][posX] == 'I') {
-                prioridad = iPrioridad(prioridad);
-                contador = contador(prioridad);
-                resultado += prioridad.charAt(contador);
-                desplazamiento(prioridad.charAt(contador));
-            } else if (terreno[posY][posX] == 'T') {
-                priotele = contador;
-                teletransportado = true;
-                EncontrarTransporter(terreno);
-            }
-            contador = contador(prioridad);
-            if (teletransportado) {
-                contador = priotele;
-                }
-            while (!pared(prioridad.charAt(contador))) {
-                if (terreno[posY][posX] == '$') {
-                    break;
-                }
-                resultado += prioridad.charAt(contador);
-                desplazamiento(prioridad.charAt(contador));
-            }
-        }
-        return resultado;
     }
 }
