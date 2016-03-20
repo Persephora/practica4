@@ -1,42 +1,39 @@
 /**
- * Created by linux on 10/03/16.
+ * Created by linux on 18/03/16.
  */
 class Bender {
-    char[][] terreno;
-    int posX;
-    int posY;
-    int posFinalX;
-    int posFinalY;
-    int ancho;
-    String prioridad = "SENW";
+    private final char[][] terreno;
+    private int posX;
+    private int posY;
+    private int ancho;
+    private int largo;
+    private String prioridad = "SENW";
+    private int posxT;
+    private int posyT;
+    private int contador;
+    private int movimientos;
 
-    // Constructor: ens passen el mapa en forma d'String
     public Bender(String mapa) {
         ancho = ancho(mapa);
         terreno = construirMapa(mapa);
-
+        String r = QuitarSalto(mapa);
+        largo = r.length() / ancho;
     }
-
-
-    // Navegar fins a l'objectiu («$»).
-    // El valor retornat pel mètode consisteix en una cadena de
-    // caràcters on cada lletra pot tenir els valors «S», «N», «W» o «E»,
-    // segons la posició del robot a cada moment.
     public String run() {
-        String resultado = recorrer(terreno);
-        return resultado;
+        return (recorrer(terreno));
     }
 
-    int ancho(String r) {
+    private int ancho(String r) {
         for (int i = 0; i < r.length(); i++) {
             if (r.charAt(i) == '\n') {
-                ancho += 1;
+                ancho = i;
+                return ancho;
             }
         }
         return ancho;
     }
 
-    public char[][] construirMapa(String r) {
+    private char[][] construirMapa(String r) {
         int Largo = r.length() / ancho;
         r = QuitarSalto(r);
         int x = 0;
@@ -57,8 +54,15 @@ class Bender {
         return terreno;
     }
 
+    private String iPrioridad(String prioridad) {
+        String parte;
+        parte = prioridad.substring(0, 2);
+        prioridad = prioridad.substring(2, 4);
+        prioridad += parte;
+        return prioridad;
+    }
 
-    String QuitarSalto(String r) {
+    private String QuitarSalto(String r) {
         String res = "";
         for (int i = 0; i < r.length(); i++) {
             if (r.charAt(i) == '\n') {
@@ -69,151 +73,121 @@ class Bender {
         return res;
     }
 
-    void EncontrarBender(char[][] array) {
+    private void EncontrarBender(char[][] array) {
         for (int y = 0; y < array.length; y++) {
             for (int x = 0; x < array[y].length; x++) {
                 if (array[y][x] == 'X') {
                     posX = x;
                     posY = y;
                 }
-                if (array[y][x] == '$') {
-                    posFinalX = x;
-                    posFinalY = y;
+            }
+        }
+    }
+
+    private void EncontrarTransporter(char[][] array) {
+        for (int y = 0; y < array.length; y++) {
+            for (int x = 0; x < array[y].length; x++) {
+                if (array[y][x] == 'T') {
+                    if (x != posX && y != posY) {
+                        posxT = x;
+                        posyT = y;
+                        posX = posxT;
+                        posY = posyT;
+                        return;
+                    }
                 }
             }
         }
     }
 
-    String recorrer(char[][] terreno) {
-        String resultado = "";
-        EncontrarBender(terreno);
-        int contador = 0;
-        char direccion;
-        for (int x = posX; x < ancho; x++) {
-            for (int y = posY; y < terreno.length; y++) {
-                if (terreno[y + 1][x] == ' ') {
-                    resultado += prioridad.charAt(contador);
+    private boolean pared(char prioridad) {
+        switch (prioridad) {
+            case 'S':
+                if (terreno[posY + 1][posX] == '#') {
+                    return true;
                 }
-                if (x == posFinalX && y == posFinalY) {
-                    resultado += prioridad.charAt(contador);
-                    return resultado;
+                break;
+            case 'E':
+                if (terreno[posY][posX + 1] == '#') {
+                    return true;
                 }
-                posY = y;
-                if (terreno[y + 1][x] == '$') {
-                    resultado += prioridad.charAt(contador);
-                    return resultado;
+                break;
+            case 'N':
+                if (terreno[posY - 1][posX] == '#') {
+                    return true;
                 }
-                if (terreno[y + 1][x] != ' ') {
-                    contador++;
-                    if (terreno[y][x + 1] == ' ') {
-                        x++;
-                        for (int a = x; a <= posFinalX; a++) {
-                            if (terreno[posY][a] == ' ') {
-                                resultado += prioridad.charAt(contador);
-                            }
-                            if (a == posFinalX && posY == posFinalY) {
-                                resultado += prioridad.charAt(contador);
-
-                                return resultado;
-                            }
-                            posX = a;
-                        }
-
-                        contador = 0;
-                    }
-                    if (terreno[y - 1][posX] == ' ') {
-                        contador += 2;
-                        y--;
-                        for (int b = y; b >= posFinalY; b--) {
-                            if (terreno[b][posX] == ' ') {
-                                resultado += prioridad.charAt(contador);
-
-                            }
-                            if (posX == posFinalX && b == posFinalY) {
-                                resultado += prioridad.charAt(contador);
-
-                                return resultado;
-                            }
-                            posY = b;
-                        }
-                        contador = 0;
-                    }
-                    if (terreno[posY][posX - 1] == ' ') {
-                        contador += 3;
-                        x--;
-                        for (int c = posX; c >= posFinalX; c--) {
-                            if (terreno[posY][c] == ' ') {
-                                resultado += prioridad.charAt(contador);
-                            }
-                            if (c == posFinalX && posY == posFinalY) {
-                                resultado += prioridad.charAt(contador);
-                                return resultado;
-                            }
-                            posX = c;
-                        }
-                        contador = 0;
-                    }
-
+                break;
+            case 'W':
+                if (terreno[posY][posX - 1] == '#') {
+                    return true;
                 }
-            }
+                break;
         }
-        return resultado;
+        return false;
     }
 
-    String obstaculos(char[][] terreno) {
+    private void desplazamiento(char prioridad) {
+        switch (prioridad) {
+            case 'S':
+                posY += 1;
+                movimientos++;
+                break;
+            case 'E':
+                posX += 1;
+                movimientos++;
+                break;
+            case 'N':
+                posY -= 1;
+                movimientos++;
+                break;
+            case 'W':
+                posX -= 1;
+                movimientos++;
+                break;
+        }
+    }
+
+    private int contador(String prioridad) {
+        for (int i = 0; i < prioridad.length(); i++) {
+            boolean pared = pared(prioridad.charAt(i));
+            if (!pared) {
+                contador = i;
+                break;
+            }
+        }
+        return contador;
+    }
+
+    private String recorrer(char[][] terreno) {
+        boolean teletransportado = false;
         String resultado = "";
         EncontrarBender(terreno);
-        int contador = 0;
-        char direccion;
-        for (int x = posX; x < ancho; x++) {
-            for (int y = posY; y < terreno.length; y++) {
-                if (terreno[y + 1][x] == ' ') {
-                    resultado += prioridad.charAt(contador);
-                    if (x == posFinalX && y == posFinalY) {
-                        resultado = resultado + prioridad.charAt(contador);
-                        return resultado;
-                    }
+        int priotele = 0;
+        while (terreno[posY][posX] != '$') {
+            if (terreno[posY][posX] == '$') {
+                break;
+            } else if (terreno[posY][posX] == 'I') {
+                prioridad = iPrioridad(prioridad);
+                contador = contador(prioridad);
+                resultado += prioridad.charAt(contador);
+                desplazamiento(prioridad.charAt(contador));
+            } else if (terreno[posY][posX] == 'T') {
+                priotele = contador;
+                teletransportado = true;
+                EncontrarTransporter(terreno);
+            }
+            contador = contador(prioridad);
+            if (teletransportado) {
+                contador = priotele;
                 }
-                if (terreno[y + 1][x] != ' ') {
-                    contador++;
-                    if (terreno[y][x + 1] == ' ') {
-                        for (int a = x; a < ancho; x++) {
-                            if (terreno[y][a] == ' ') {
-                                resultado += prioridad.charAt(contador);
-                                if (x == posFinalX && y == posFinalY) {
-                                    resultado = resultado + prioridad.charAt(contador);
-                                    return resultado;
-                                }
-                            }
-                        }
-                    }
-                    if (terreno[y - 1][x] == ' ') {
-                        for (int b = y; b > 0; b--) {
-                            if (terreno[b][x] == ' ') {
-                                resultado += prioridad.charAt(contador);
-                                if (x == posFinalX && y == posFinalY) {
-                                    resultado = resultado + prioridad.charAt(contador);
-                                    return resultado;
-                                }
-                            }
-                        }
-                    }
-                    if (terreno[y][x - 1] == ' ') {
-                        for (int c = x; c > 0; c--) {
-                            if (terreno[y][c] == ' ') {
-                                resultado += prioridad.charAt(contador);
-                                if (x == posFinalX && y == posFinalY) {
-                                    resultado = resultado + prioridad.charAt(contador);
-                                    return resultado;
-                                }
-                            }
-                        }
-                    }
-
+            while (!pared(prioridad.charAt(contador))) {
+                if (terreno[posY][posX] == '$') {
+                    break;
                 }
+                resultado += prioridad.charAt(contador);
+                desplazamiento(prioridad.charAt(contador));
             }
         }
         return resultado;
     }
 }
-
